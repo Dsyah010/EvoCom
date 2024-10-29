@@ -127,7 +127,7 @@ def main(POP_SIZE, MUT_RATE, TARGET, GENES):
         st.write('Target found')
         st.write('String: ' + str(population[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population[0][1]))
         break
-      st,write('String: ' + str(population[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population[0][1]))
+      st.write('String: ' + str(population[0][0]) + ' Generation: ' + str(generation) + ' Fitness: ' + str(population[0][1]))
       generation+=1
 
 result = main(POP_SIZE, MUT_RATE, TARGET, GENES)

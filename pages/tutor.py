@@ -3,6 +3,7 @@ from itertools import permutations
 import random
 import numpy as np
 import seaborn as sns
+import streamlit as st
 
 # Prompt user for number of cities
 while True:
@@ -11,9 +12,9 @@ while True:
         if 2 <= n_cities <= 10:
             break
         else:
-            print("Please enter a number between 2 and 10.")
+            st.write("Please enter a number between 2 and 10.")
     except ValueError:
-        print("Invalid input. Please enter a number between 2 and 10.")
+        st.write("Invalid input. Please enter a number between 2 and 10.")
 
 # Input city details
 city_coords = {}

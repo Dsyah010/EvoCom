@@ -1,14 +1,21 @@
 import matplotlib.pyplot as plt
-from itertools import permutations, combinations
-from random import shuffle
+from itertools import permutations
 import random
 import numpy as np
-import statistics
-import pandas as pd
 import seaborn as sns
 
+# Prompt user for number of cities
+while True:
+    try:
+        n_cities = int(input("Enter the number of cities (between 2 and 10): "))
+        if 2 <= n_cities <= 10:
+            break
+        else:
+            print("Please enter a number between 2 and 10.")
+    except ValueError:
+        print("Invalid input. Please enter a number between 2 and 10.")
+
 # Input city details
-n_cities = int(input("Enter the number of cities: "))
 city_coords = {}
 city_icons = {}
 
@@ -49,6 +56,8 @@ plt.show()
 def initial_population(cities_list, n_population=250):
     population_perms = []
     possible_perms = list(permutations(cities_list))
+    # Ensure n_population is not larger than the number of possible permutations
+    n_population = min(n_population, len(possible_perms))  
     random_ids = random.sample(range(0, len(possible_perms)), n_population)
     for i in random_ids:
         population_perms.append(list(possible_perms[i]))

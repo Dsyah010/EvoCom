@@ -7,10 +7,6 @@ import statistics
 import pandas as pd
 import seaborn as sns
 
-x = [1,3,5,7,10,18,16,11,8,1.5]
-y = [0,2,1,4.5,-1,2.5,10,6,7,10]
-cities_names = ["Kota Bharu", "Jeli", "Tanah Merah", "Kuala Krai", "Pasir Mas", "Pasir Puteh", "Machang", "Tumpat", "Lojing", "Bachok"]
-city_coords = dict(zip(cities_names, zip(x, y)))
 n_population = 250
 crossover_per = 0.8
 mutation_per = 0.2
@@ -18,20 +14,6 @@ n_generations = 200
 
 # Pastel Pallete
 colors = sns.color_palette("pastel", len(cities_names))
-
-# City Icons
-city_icons = {
-    "Kota Bharu": "♕",
-    "Jeli": "♖",
-    "Tanah Merah": "♗",
-    "Kuala Krai": "♘",
-    "Pasir Mas": "♙",
-    "Pasir Puteh": "♔",
-    "Machang": "♚",
-    "Tumpat": "♛",
-    "Lojing": "♜",
-    "Bachok": "♝"
-}
 
 fig, ax = plt.subplots()
 

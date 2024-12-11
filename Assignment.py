@@ -115,8 +115,16 @@ genetic_schedule = genetic_algorithm(
 )
 final_schedule = initial_best_schedule + genetic_schedule[:rem_t_slots]
 
+# Prepare data for the table
+schedule_table = {
+    "Time Slot": [f"{time_slot:02d}:00" for time_slot in all_time_slots],
+    "Program": final_schedule,
+}
+
 # Display the results
-st.subheader("Final Optimal Schedule")
-for time_slot, program in enumerate(final_schedule):
-    st.write(f"Time Slot {all_time_slots[time_slot]:02d}:00 - Program: {program}")
+st.subheader("Final Optimal Schedule (Table Format)")
+st.dataframe(schedule_table)  # Interactive table
+# Alternatively, use st.table(schedule_table) for a static table
+
+# Display total ratings
 st.write("Total Ratings:", fitness_function(final_schedule))

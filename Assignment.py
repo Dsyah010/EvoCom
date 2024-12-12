@@ -1,6 +1,7 @@
 import csv
 import streamlit as st
 import random
+import pandas as pd
 
 # Function to read the CSV file and convert it to the desired format
 def read_csv_to_dict(file_path):
@@ -29,8 +30,8 @@ GEN = 100
 POP = 50
 EL_S = 2
 
-all_programs = list(program_ratings_dict.keys()) # all programs
-all_time_slots = list(range(6, 24)) # time slots
+all_programs = list(program_ratings_dict.keys())  # all programs
+all_time_slots = list(range(6, 24))  # time slots
 
 # Crossover
 def crossover(schedule1, schedule2):
@@ -129,9 +130,18 @@ genetic_schedule = genetic_algorithm(initial_best_schedule, generations=GEN, pop
 
 final_schedule = initial_best_schedule + genetic_schedule[:rem_t_slots]
 
-# Display the final schedule and ratings
-st.write("\nFinal Optimal Schedule:")
-for time_slot, program in enumerate(final_schedule):
-    st.write(f"Time Slot {all_time_slots[time_slot]:02d}:00 - Program {program}")
+# Prepare the final schedule for display in a table
+schedule_data = {
+    "Time Slot": [f"{hour}:00" for hour in all_time_slots],
+    "Scheduled Program": final_schedule
+}
 
+# Convert the data to a pandas DataFrame for better table display
+df_schedule = pd.DataFrame(schedule_data)
+
+# Display the final schedule as a table
+st.write("**Final Optimal Schedule:**")
+st.table(df_schedule)
+
+# Display total ratings
 st.write("Total Ratings:", fitness_function(final_schedule))

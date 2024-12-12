@@ -28,7 +28,7 @@ all_programs = list(program_ratings_dict.keys())  # All programs
 all_time_slots = list(range(6, 24))  # Time slots
 ratings = program_ratings_dict
 
-# Defining functions
+# Fitness function
 def fitness_function(schedule):
     total_rating = 0
     for time_slot, program in enumerate(schedule):
@@ -36,51 +36,76 @@ def fitness_function(schedule):
             total_rating += ratings[program][time_slot]
         else:
             total_rating += 0  # Assign default value for invalid cases
+    
+    # Debugging: Show fitness calculation
+    st.write(f"Schedule: {schedule}")
+    st.write(f"Fitness: {total_rating}")
+    
     return total_rating
 
+# Initialize population
 def initialize_pop(programs, time_slots):
     population = []
     for _ in range(POP):  # Generate a population of schedules
         random_schedule = random.sample(programs, len(programs))
         random_schedule = random_schedule[:len(time_slots)]  # Trim to match time slots
         population.append(random_schedule)
+    
+    # Debugging: Print first few schedules
+    st.write("Initial Population (First 5 Schedules):")
+    for i, schedule in enumerate(population[:5]):
+        st.write(f"Schedule {i+1}: {schedule}")
+    
     return population
 
+# Crossover function
 def crossover(schedule1, schedule2):
     crossover_point = random.randint(1, len(schedule1) - 2)
     child1 = schedule1[:crossover_point] + schedule2[crossover_point:]
     child2 = schedule2[:crossover_point] + schedule1[crossover_point:]
     return child1, child2
 
+# Mutation function
 def mutate(schedule):
     mutation_point = random.randint(0, len(schedule) - 1)
     new_program = random.choice([p for p in all_programs if p != schedule[mutation_point]])
     schedule[mutation_point] = new_program
     return schedule
 
+# Genetic algorithm
 def genetic_algorithm(generations, population_size, crossover_rate, mutation_rate, elitism_size):
     population = initialize_pop(all_programs, all_time_slots)
+    
     for generation in range(generations):
-        new_population = []
+        # Sort by fitness and keep the best schedules
         population.sort(key=lambda schedule: fitness_function(schedule), reverse=True)
-        new_population.extend(population[:elitism_size])  # Elitism
+        
+        # Debugging: Display the best schedule for the current generation
+        st.write(f"Generation {generation+1}: Best Fitness = {fitness_function(population[0])}")
+        st.write(f"Best Schedule: {population[0]}")
+        
+        new_population = population[:elitism_size]  # Elitism
 
+        # Generate new offspring
         while len(new_population) < population_size:
             parent1, parent2 = random.choices(population, k=2)
             if random.random() < crossover_rate:
                 child1, child2 = crossover(parent1, parent2)
             else:
                 child1, child2 = parent1.copy(), parent2.copy()
-
+            
             if random.random() < mutation_rate:
                 child1 = mutate(child1)
             if random.random() < mutation_rate:
                 child2 = mutate(child2)
-
+            
             new_population.extend([child1, child2])
+        
         population = new_population[:population_size]
-
-    return population[0]  # Return the best schedule
+    
+    # Final debugging: Display the best schedule before post-processing
+    st.write("Final Best Schedule (Raw):", population[0])
+    return population[0]
 
 # Streamlit interface
 st.title("Genetic Algorithm for Optimal Program Scheduling")
@@ -98,7 +123,7 @@ if st.sidebar.button("Run Algorithm"):
         elitism_size=EL_S,
     )
 
-    # Debug: Print lengths of schedules and slots
+    # Debugging: Length checks
     st.write("Length of best schedule:", len(best_schedule))
     st.write("Length of time slots:", len(all_time_slots))
 

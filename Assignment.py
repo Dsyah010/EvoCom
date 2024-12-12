@@ -117,7 +117,7 @@ st.title("Genetic Algorithm for Program Scheduling")
 
 # Sliders for user input
 CO_R = st.slider("Crossover Rate (CO_R)", 0.0, 0.95, 0.8)  # Default value is 0.8, with range 0 to 0.95
-MUT_R = st.slider("Mutation Rate (MUT_R)", 0.01, 0.05, 0.2)  # Default value is 0.2, with range 0.01 to 0.05
+MUT_R = st.slider("Mutation Rate (MUT_R)", 0.01, 0.05, 0.02)  # Default value is 0.02, with range 0.01 to 0.05
 
 # Get all possible schedules and find the best schedule initially
 all_possible_schedules = initialize_pop(all_programs, all_time_slots)

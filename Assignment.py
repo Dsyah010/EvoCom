@@ -1,6 +1,7 @@
 import csv
 import random
 import streamlit as st
+import pandas as pd
 
 # Function to read the CSV file and convert it to the desired format
 def read_csv_to_dict(file_path):
@@ -94,13 +95,14 @@ if st.sidebar.button("Run Algorithm"):
         elitism_size=EL_S,
     )
 
-    # Prepare data for the table
-    schedule_table = {
+    # Prepare data for the vertical table
+    schedule_data = {
         "Time Slot": [f"{time_slot:02d}:00" for time_slot in all_time_slots],
         "Program": best_schedule,
     }
+    vertical_table = pd.DataFrame(schedule_data)
 
     # Display the results
-    st.subheader("Final Optimal Schedule")
-    st.table(schedule_table)  # Static table
+    st.subheader("Final Optimal Schedule (Vertical Format)")
+    st.table(vertical_table)  # Static table
     st.write("Total Ratings:", fitness_function(best_schedule))

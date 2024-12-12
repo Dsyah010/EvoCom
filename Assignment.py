@@ -95,6 +95,12 @@ if st.sidebar.button("Run Algorithm"):
         elitism_size=EL_S,
     )
 
+    # Adjust the length of the schedule to match the time slots
+    if len(best_schedule) < len(all_time_slots):
+        best_schedule.extend(["None"] * (len(all_time_slots) - len(best_schedule)))
+    elif len(best_schedule) > len(all_time_slots):
+        best_schedule = best_schedule[:len(all_time_slots)]
+
     # Prepare data for the vertical table
     schedule_data = {
         "Time Slot": [f"{time_slot:02d}:00" for time_slot in all_time_slots],

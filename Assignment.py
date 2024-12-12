@@ -61,7 +61,7 @@ def fitness_function(schedule):
 def initialize_pop(programs, time_slots, population_size):
     population = []
     for _ in range(population_size):
-        schedule = random.sample(programs, len(programs))
+        schedule = random.choices(programs, k=len(time_slots))
         population.append(schedule)
     return population
 
@@ -107,10 +107,18 @@ initial_population = initialize_pop(all_programs, all_time_slots, POP)
 # Run the genetic algorithm
 optimal_schedule = genetic_algorithm(initial_population, generations=GEN, crossover_rate=CO_R, mutation_rate=MUT_R, elitism_size=EL_S)
 
+# Ensure the schedule matches the number of time slots
+if len(optimal_schedule) < len(all_time_slots):
+    # Pad with a default value (e.g., a random program)
+    optimal_schedule += [random.choice(all_programs) for _ in range(len(all_time_slots) - len(optimal_schedule))]
+elif len(optimal_schedule) > len(all_time_slots):
+    # Truncate to match the time slots
+    optimal_schedule = optimal_schedule[:len(all_time_slots)]
+
 # Prepare the final schedule for display in a table
 schedule_data = {
     "Time Slot": [f"{hour}:00" for hour in all_time_slots],
-    "Scheduled Program": optimal_schedule[:len(all_time_slots)]
+    "Scheduled Program": optimal_schedule
 }
 
 # Convert the data to a pandas DataFrame for better table display
@@ -121,4 +129,4 @@ st.write("**Final Optimal Schedule:**")
 st.table(df_schedule)
 
 # Display total ratings
-st.write("Total Ratings:", fitness_function(optimal_schedule[:len(all_time_slots)]))
+st.write("Total Ratings:", fitness_function(optimal_schedule))

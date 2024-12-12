@@ -135,14 +135,17 @@ if st.sidebar.button("Run Algorithm"):
         st.warning("Schedule is longer than time slots. Trimming.")
         best_schedule = best_schedule[:len(all_time_slots)]
 
-    # Prepare data for the vertical table
+    # Prepare data for the table
     schedule_data = {
         "Time Slot": [f"{time_slot:02d}:00" for time_slot in all_time_slots],
         "Program": best_schedule,
     }
     vertical_table = pd.DataFrame(schedule_data)
 
-    # Display the results
+    # Debugging: Check table structure
+    st.write("Data for Table:", vertical_table)
+
+    # Display the table
     st.subheader("Final Optimal Schedule (Vertical Format)")
-    st.table(vertical_table)  # Static table
+    st.table(vertical_table)  # Display the DataFrame as a static table
     st.write("Total Ratings:", fitness_function(best_schedule))

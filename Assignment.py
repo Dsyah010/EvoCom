@@ -61,12 +61,12 @@ def fitness_function(schedule):
 def initialize_pop(programs, time_slots, population_size):
     population = []
     for _ in range(population_size):
-        schedule = random.choices(programs, k=len(time_slots))
+        schedule = random.sample(programs, len(programs))
         population.append(schedule)
     return population
 
 # Genetic algorithm function
-def genetic_algorithm(initial_population, generations=GEN, crossover_rate=0.8, mutation_rate=0.2, elitism_size=EL_S):
+def genetic_algorithm(initial_population, generations=GEN, crossover_rate=0.8, mutation_rate=0.02, elitism_size=EL_S):
     population = initial_population
 
     for generation in range(generations):
@@ -98,8 +98,8 @@ def genetic_algorithm(initial_population, generations=GEN, crossover_rate=0.8, m
 st.title("Genetic Algorithm for Program Scheduling")
 
 # Sliders for user input
-CO_R = st.slider("Crossover Rate (CO_R)", 0.0, 1.0, 0.8)  # Default value is 0.8, range 0 to 1.0
-MUT_R = st.slider("Mutation Rate (MUT_R)", 0.0, 1.0, 0.2)  # Default value is 0.2, range 0 to 1.0
+CO_R = st.slider("Crossover Rate (CO_R)", 0.0, 0.95, 0.8)  # Default value is 0.8, range 0 to 0.95
+MUT_R = st.slider("Mutation Rate (MUT_R)", 0.01, 0.05, 0.02)  # Default value is 0.02, range 0.01 to 0.05
 
 # Initialize population
 initial_population = initialize_pop(all_programs, all_time_slots, POP)

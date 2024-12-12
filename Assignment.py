@@ -98,10 +98,16 @@ if st.sidebar.button("Run Algorithm"):
         elitism_size=EL_S,
     )
 
+    # Debug: Print lengths of schedules and slots
+    st.write("Length of best schedule:", len(best_schedule))
+    st.write("Length of time slots:", len(all_time_slots))
+
     # Adjust the length of the schedule to match the time slots
     if len(best_schedule) < len(all_time_slots):
+        st.warning("Schedule is shorter than time slots. Adding 'None' to fill.")
         best_schedule.extend(["None"] * (len(all_time_slots) - len(best_schedule)))
     elif len(best_schedule) > len(all_time_slots):
+        st.warning("Schedule is longer than time slots. Trimming.")
         best_schedule = best_schedule[:len(all_time_slots)]
 
     # Prepare data for the vertical table

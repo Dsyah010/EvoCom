@@ -32,7 +32,10 @@ ratings = program_ratings_dict
 def fitness_function(schedule):
     total_rating = 0
     for time_slot, program in enumerate(schedule):
-        total_rating += ratings[program][time_slot]
+        if program in ratings and time_slot < len(ratings[program]):
+            total_rating += ratings[program][time_slot]
+        else:
+            total_rating += 0  # Assign default value for invalid cases
     return total_rating
 
 def initialize_pop(programs, time_slots):

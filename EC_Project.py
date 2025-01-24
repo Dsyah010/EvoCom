@@ -2,17 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import random
-import time
 from gplearn.genetic import SymbolicRegressor
 import graphviz
 
 # Constants
-POP_SIZE = 100
-MUT_RATE = 0.2
 TARGET_FITNESS = -97850
 
 # Load the dataset
-data = pd.read_csv("EvoCom/pages/job_scheduling_data_100.csv")
+DATA_PATH = "EvoCom/pages/job_scheduling_data_100.csv"
+data = pd.read_csv(DATA_PATH)
 
 # App Header
 st.title("Job Scheduling Optimization using Genetic Algorithm and Symbolic Regression")
@@ -110,8 +108,8 @@ def genetic_algorithm(pop_size, mut_rate):
 
 # Streamlit User Inputs
 st.sidebar.header("Genetic Algorithm Parameters")
-user_pop_size = st.sidebar.slider("Population Size", 10, 200, POP_SIZE)
-user_mut_rate = st.sidebar.slider("Mutation Rate", 0.0, 1.0, MUT_RATE, 0.01)
+user_pop_size = st.sidebar.slider("Population Size", 10, 200, 100)
+user_mut_rate = st.sidebar.slider("Mutation Rate", 0.0, 1.0, 0.2, 0.01)
 
 # Run Genetic Algorithm
 if st.button("Run Genetic Algorithm"):
@@ -120,11 +118,12 @@ if st.button("Run Genetic Algorithm"):
     st.line_chart(fitness_values)
 
 # Symbolic Regression
-st.sidebar.header("Symbolic Regression")
+st.sidebar.header("Symbolic Regression Parameters")
 gp_population = st.sidebar.slider("Population Size", 100, 1000, 500)
 gp_generations = st.sidebar.slider("Generations", 10, 50, 20)
 
 if st.button("Run Symbolic Regression"):
+    # Extract features and targets
     X = data[[
         "Processing Time", "Setup Time", "Queue Length", "Slack Time", "Machine Utilization"
     ]].values
@@ -139,6 +138,7 @@ if st.button("Run Symbolic Regression"):
         y.append(fitness)
     y = np.array(y)
 
+    # Train symbolic regression model
     gp = SymbolicRegressor(
         population_size=gp_population,
         generations=gp_generations,
@@ -153,9 +153,10 @@ if st.button("Run Symbolic Regression"):
     )
     gp.fit(X, y)
 
+    # Display results
     st.write("Evolved Expression:")
     st.text(gp._program)
 
+    # Visualize the symbolic regression tree
     dot_data = gp._program.export_graphviz()
-    graph = graphviz.Source(dot_data)
     st.graphviz_chart(dot_data)

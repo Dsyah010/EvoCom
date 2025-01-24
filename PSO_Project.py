@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 import streamlit as st
+import os
 
 # PSO Parameters
 INERTIA = 0.7
@@ -12,12 +13,13 @@ POP_SIZE = 100
 GENERATIONS = 100
 TARGET_FITNESS = 1e10  # Target fitness to maximize
 
-# Load dataset (you can upload the dataset via Streamlit's file uploader)
-st.title("Particle Swarm Optimization for Job Scheduling")
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+# Define the path to the dataset
+file_path = "pages/job_scheduling_data_100.csv"
 
-if uploaded_file is not None:
-    data = pd.read_csv(uploaded_file)
+# Check if the file exists
+if os.path.exists(file_path):
+    # Load dataset
+    data = pd.read_csv(file_path)
 
     # Preprocess dataset to extract key parameters
     data['Slack Time'] = data['Due Date'] - (data['Processing Time'] + data['Processing Time'].cumsum())
@@ -122,3 +124,6 @@ if uploaded_file is not None:
     ax.legend()
     ax.grid(True)
     st.pyplot(fig)
+
+else:
+    st.error("File not found. Please ensure the file path is correct.")

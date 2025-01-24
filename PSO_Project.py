@@ -5,21 +5,22 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import os
 
-# PSO Parameters
-INERTIA = 0.7
-COGNITIVE = 1.5
-SOCIAL = 1.5
-POP_SIZE = 100
-GENERATIONS = 100
-TARGET_FITNESS = 1e10  # Target fitness to maximize
+# Load dataset (the user will upload it)
+st.title("Particle Swarm Optimization for Job Scheduling")
 
-# Define the path to the dataset
-file_path = "pages/job_scheduling_data_100.csv"
+# File uploader to upload CSV file
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
-# Check if the file exists
-if os.path.exists(file_path):
-    # Load dataset
-    data = pd.read_csv(file_path)
+# Define default values for the parameters
+default_inertia = 0.7
+default_cognitive = 1.5
+default_social = 1.5
+default_pop_size = 100
+default_generations = 100
+default_target_fitness = 1e10
+
+if uploaded_file is not None:
+    data = pd.read_csv(uploaded_file)
 
     # Preprocess dataset to extract key parameters
     data['Slack Time'] = data['Due Date'] - (data['Processing Time'] + data['Processing Time'].cumsum())
@@ -32,6 +33,14 @@ if os.path.exists(file_path):
         "Machine Utilization": (data['Machine Utilization'].min(), data['Machine Utilization'].max()),
         "Processing Time": (data['Processing Time'].min(), data['Processing Time'].max())
     }
+
+    # Streamlit sliders and inputs for parameter adjustment
+    INERTIA = st.slider("Inertia", min_value=0.0, max_value=1.0, value=default_inertia, step=0.1)
+    COGNITIVE = st.slider("Cognitive", min_value=0.0, max_value=2.0, value=default_cognitive, step=0.1)
+    SOCIAL = st.slider("Social", min_value=0.0, max_value=2.0, value=default_social, step=0.1)
+    POP_SIZE = st.slider("Population Size", min_value=10, max_value=200, value=default_pop_size, step=10)
+    GENERATIONS = st.slider("Generations", min_value=10, max_value=500, value=default_generations, step=10)
+    TARGET_FITNESS = st.number_input("Target Fitness", min_value=1e5, max_value=1e15, value=default_target_fitness, step=1e5)
 
     # Fitness function (maximize fitness)
     def fitness_cal(position, slack_weight=0.4, utilization_weight=0.3, processing_weight=0.3):
@@ -124,6 +133,3 @@ if os.path.exists(file_path):
     ax.legend()
     ax.grid(True)
     st.pyplot(fig)
-
-else:
-    st.error("File not found. Please ensure the file path is correct.")

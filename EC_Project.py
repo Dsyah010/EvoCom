@@ -4,20 +4,32 @@ import numpy as np
 import random
 from gplearn.genetic import SymbolicRegressor
 import graphviz
+import os
+
+# Check current working directory (for debugging)
+st.write("Current Working Directory:", os.getcwd())
 
 # Constants
 TARGET_FITNESS = -97850
 
-# Load the dataset
-DATA_PATH = "EvoCom/pages/job_scheduling_data_100.csv"
-data = pd.read_csv(DATA_PATH)
+# Path to the dataset
+DATA_PATH = "pages/job_scheduling_data_100.csv"
+
+# Attempt to load the dataset
+try:
+    # For local testing, make sure the file exists at the specified location
+    data = pd.read_csv(DATA_PATH)
+except FileNotFoundError:
+    st.error(f"File {DATA_PATH} not found. Please upload the file.")
+    data = None
 
 # App Header
 st.title("Job Scheduling Optimization using Genetic Algorithm and Symbolic Regression")
 
-# Dataset Display
-if st.checkbox("Show Dataset"):
-    st.write(data.head())
+# Display dataset if available
+if data is not None:
+    if st.checkbox("Show Dataset"):
+        st.write(data.head())
 
 # Initialization Function
 def initialize_pop(pop_size):
@@ -123,40 +135,45 @@ gp_population = st.sidebar.slider("Population Size", 100, 1000, 500)
 gp_generations = st.sidebar.slider("Generations", 10, 50, 20)
 
 if st.button("Run Symbolic Regression"):
-    # Extract features and targets
-    X = data[[
-        "Processing Time", "Setup Time", "Queue Length", "Slack Time", "Machine Utilization"
-    ]].values
+    # Ensure that data is available before running symbolic regression
+    if data is not None:
+        # Extract features and targets
+        X = data[[
+            "Processing Time", "Setup Time", "Queue Length", "Slack Time", "Machine Utilization"
+        ]].values
 
-    y = []
-    for _, row in data.iterrows():
-        fitness = fitness_cal({
-            "slack_time": row["Slack Time"],
-            "machine_utilization": row["Machine Utilization"],
-            "processing_time": row["Processing Time"]
-        })
-        y.append(fitness)
-    y = np.array(y)
+        y = []
+        for _, row in data.iterrows():
+            fitness = fitness_cal({
+                "slack_time": row["Slack Time"],
+                "machine_utilization": row["Machine Utilization"],
+                "processing_time": row["Processing Time"]
+            })
+            y.append(fitness)
+        y = np.array(y)
 
-    # Train symbolic regression model
-    gp = SymbolicRegressor(
-        population_size=gp_population,
-        generations=gp_generations,
-        stopping_criteria=0.01,
-        p_crossover=0.7,
-        p_subtree_mutation=0.1,
-        p_hoist_mutation=0.05,
-        p_point_mutation=0.1,
-        max_samples=0.9,
-        verbose=1,
-        random_state=42
-    )
-    gp.fit(X, y)
+        # Train symbolic regression model
+        gp = SymbolicRegressor(
+            population_size=gp_population,
+            generations=gp_generations,
+            stopping_criteria=0.01,
+            p_crossover=0.7,
+            p_subtree_mutation=0.1,
+            p_hoist_mutation=0.05,
+            p_point_mutation=0.1,
+            max_samples=0.9,
+            verbose=1,
+            random_state=42
+        )
+        gp.fit(X, y)
 
-    # Display results
-    st.write("Evolved Expression:")
-    st.text(gp._program)
+        # Display results
+        st.write("Evolved Expression:")
+        st.text(gp._program)
 
-    # Visualize the symbolic regression tree
-    dot_data = gp._program.export_graphviz()
-    st.graphviz_chart(dot_data)
+        # Visualize the symbolic regression tree
+        dot_data = gp._program.export_graphviz()
+        st.graphviz_chart(dot_data)
+
+else:
+    st.warning("Please upload the dataset if it's not available.")

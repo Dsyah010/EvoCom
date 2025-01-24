@@ -20,7 +20,7 @@ try:
     # For local testing, make sure the file exists at the specified location
     data = pd.read_csv(DATA_PATH)
 except FileNotFoundError:
-    st.error(f"File {DATA_PATH} not found. Please upload the file.")
+    st.error(f"File {DATA_PATH} not found.")
     data = None
 
 # App Header
@@ -174,6 +174,3 @@ if st.button("Run Symbolic Regression"):
         # Visualize the symbolic regression tree
         dot_data = gp._program.export_graphviz()
         st.graphviz_chart(dot_data)
-
-else:
-    st.warning("Please upload the dataset if it's not available.")

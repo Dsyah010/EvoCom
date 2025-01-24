@@ -109,13 +109,18 @@ if os.path.exists(file_path):
                 st.write("Optimal solution found!")
                 break
 
-        return global_best, fitness_trends
+        return global_best, fitness_trends, generation + 1, global_best_fitness
 
     # Run PSO
-    best_solution, fitness_trends = particle_swarm_optimization()
+    best_solution, fitness_trends, num_generations, final_fitness = particle_swarm_optimization()
 
     # Display the best solution
     st.write("Best Solution:", best_solution)
+
+    # Output for Generation and Target Fitness
+    st.subheader("Final Output")
+    st.write(f"Total Generations: {num_generations}")
+    st.write(f"Final Target Fitness: {final_fitness}")
 
     # Plot fitness trends
     st.subheader("Fitness Trends Over Generations")

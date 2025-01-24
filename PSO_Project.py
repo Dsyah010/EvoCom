@@ -5,22 +5,16 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import os
 
-# Load dataset (the user will upload it)
+# Load dataset (the user will upload it or use a fixed path)
 st.title("Particle Swarm Optimization for Job Scheduling")
 
-# File uploader to upload CSV file
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+# Define the path to the dataset
+file_path = "pages/job_scheduling_data_100.csv"
 
-# Define default values for the parameters
-default_inertia = 0.7
-default_cognitive = 1.5
-default_social = 1.5
-default_pop_size = 100
-default_generations = 100
-default_target_fitness = 1e10
-
-if uploaded_file is not None:
-    data = pd.read_csv(uploaded_file)
+# Check if the file exists
+if os.path.exists(file_path):
+    # Load dataset
+    data = pd.read_csv(file_path)
 
     # Preprocess dataset to extract key parameters
     data['Slack Time'] = data['Due Date'] - (data['Processing Time'] + data['Processing Time'].cumsum())
@@ -35,12 +29,12 @@ if uploaded_file is not None:
     }
 
     # Streamlit sliders and inputs for parameter adjustment
-    INERTIA = st.slider("Inertia", min_value=0.0, max_value=1.0, value=default_inertia, step=0.1)
-    COGNITIVE = st.slider("Cognitive", min_value=0.0, max_value=2.0, value=default_cognitive, step=0.1)
-    SOCIAL = st.slider("Social", min_value=0.0, max_value=2.0, value=default_social, step=0.1)
-    POP_SIZE = st.slider("Population Size", min_value=10, max_value=200, value=default_pop_size, step=10)
-    GENERATIONS = st.slider("Generations", min_value=10, max_value=500, value=default_generations, step=10)
-    TARGET_FITNESS = st.number_input("Target Fitness", min_value=1e5, max_value=1e15, value=default_target_fitness, step=1e5)
+    INERTIA = st.slider("Inertia", min_value=0.0, max_value=1.0, value=0.7, step=0.1)
+    COGNITIVE = st.slider("Cognitive", min_value=0.0, max_value=2.0, value=1.5, step=0.1)
+    SOCIAL = st.slider("Social", min_value=0.0, max_value=2.0, value=1.5, step=0.1)
+    POP_SIZE = st.slider("Population Size", min_value=10, max_value=200, value=100, step=10)
+    GENERATIONS = st.slider("Generations", min_value=10, max_value=500, value=100, step=10)
+    TARGET_FITNESS = st.number_input("Target Fitness", min_value=1e5, max_value=1e15, value=1e10, step=1e5)
 
     # Fitness function (maximize fitness)
     def fitness_cal(position, slack_weight=0.4, utilization_weight=0.3, processing_weight=0.3):
@@ -133,3 +127,6 @@ if uploaded_file is not None:
     ax.legend()
     ax.grid(True)
     st.pyplot(fig)
+
+else:
+    st.error(f"File not found. Please ensure the file path '{file_path}' is correct.")

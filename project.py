@@ -1,6 +1,6 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import random
 
@@ -25,96 +25,107 @@ w1 = st.sidebar.slider("Lateness Weight (w1)", 0.0, 1.0, 0.5, 0.1)
 w2 = st.sidebar.slider("Utilization Weight (w2)", 0.0, 1.0, 0.3, 0.1)
 w3 = st.sidebar.slider("Priority Weight (w3)", 0.0, 1.0, 0.2, 0.1)
 
-# File uploader for dataset
-st.sidebar.header("Upload Dataset")
-uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    st.subheader("Data Preview")
-    st.dataframe(df.head())
+# Input for GitHub raw URL
+st.sidebar.header("Dataset")
+github_url = st.sidebar.text_input(
+    "Enter GitHub Raw URL for Dataset",
+    "https://raw.githubusercontent.com/username/repository/branch/path/to/job_scheduling_data_100.csv"
+)
 
-    # Bounds for discretization
-    bounds = {
-        "processing_time": (df["Processing Time"].min(), df["Processing Time"].max()),
-        "queue_length": (df["Queue Length"].min(), df["Queue Length"].max()),
-        "machine_utilization": (df["Machine Utilization"].min(), df["Machine Utilization"].max()),
-    }
+if github_url:
+    try:
+        # Load the dataset
+        df = pd.read_csv(github_url)
+        st.subheader("Data Preview")
+        st.dataframe(df.head())
 
-    # Initialize pheromones
-    def initialize_pheromones():
-        pheromones = {
-            "processing_time": np.ones(int(bounds["processing_time"][1] - bounds["processing_time"][0] + 1)),
-            "queue_length": np.ones(int(bounds["queue_length"][1] - bounds["queue_length"][0] + 1)),
-            "machine_utilization": np.ones(int(bounds["machine_utilization"][1] - bounds["machine_utilization"][0] + 1)),
+        # Bounds for discretization
+        bounds = {
+            "processing_time": (df["Processing Time"].min(), df["Processing Time"].max()),
+            "queue_length": (df["Queue Length"].min(), df["Queue Length"].max()),
+            "machine_utilization": (df["Machine Utilization"].min(), df["Machine Utilization"].max()),
         }
-        return pheromones
 
-    # Fitness function
-    def fitness_cal(solution):
-        lateness = max(0, (solution["arrival_time"] + solution["processing_time"] + solution["setup_time"] - solution["due_date"]))
-        utilization = solution["machine_utilization"]
-        priority = solution["job_priority"]
-        return w1 * (-lateness) + w2 * utilization + w3 * priority
+        # Initialize pheromones
+        def initialize_pheromones():
+            pheromones = {
+                "processing_time": np.ones(int(bounds["processing_time"][1] - bounds["processing_time"][0] + 1)),
+                "queue_length": np.ones(int(bounds["queue_length"][1] - bounds["queue_length"][0] + 1)),
+                "machine_utilization": np.ones(int(bounds["machine_utilization"][1] - bounds["machine_utilization"][0] + 1)),
+            }
+            return pheromones
 
-    # Main ACO loop
-    def ant_colony_optimization(data):
-        pheromones = initialize_pheromones()
-        best_solution = None
-        best_fitness = float('-inf')
-        fitness_trends = []
+        # Fitness function
+        def fitness_cal(solution):
+            lateness = max(0, (solution["arrival_time"] + solution["processing_time"] + solution["setup_time"] - solution["due_date"]))
+            utilization = solution["machine_utilization"]
+            priority = solution["job_priority"]
+            return w1 * (-lateness) + w2 * utilization + w3 * priority
 
-        for iteration in range(NUM_ITERATIONS):
-            solutions = []
-            fitness_values = []
+        # Main ACO loop
+        def ant_colony_optimization(data):
+            pheromones = initialize_pheromones()
+            best_solution = None
+            best_fitness = float('-inf')
+            fitness_trends = []
 
-            for _ in range(NUM_ANTS):
-                row = data.iloc[random.randint(0, len(data) - 1)]
-                solution = {
-                    "processing_time": row["Processing Time"],
-                    "queue_length": row["Queue Length"],
-                    "machine_utilization": row["Machine Utilization"],
-                    "arrival_time": row["Arrival Time"],
-                    "due_date": row["Due Date"],
-                    "setup_time": row["Setup Time"],
-                    "job_priority": row["Job Priority"],
-                }
-                fitness = fitness_cal(solution)
-                solutions.append(solution)
-                fitness_values.append(fitness)
+            for iteration in range(NUM_ITERATIONS):
+                solutions = []
+                fitness_values = []
 
-                if fitness > best_fitness:
-                    best_fitness = fitness
-                    best_solution = solution
+                for _ in range(NUM_ANTS):
+                    row = data.iloc[random.randint(0, len(data) - 1)]
+                    solution = {
+                        "processing_time": row["Processing Time"],
+                        "queue_length": row["Queue Length"],
+                        "machine_utilization": row["Machine Utilization"],
+                        "arrival_time": row["Arrival Time"],
+                        "due_date": row["Due Date"],
+                        "setup_time": row["Setup Time"],
+                        "job_priority": row["Job Priority"],
+                    }
+                    fitness = fitness_cal(solution)
+                    solutions.append(solution)
+                    fitness_values.append(fitness)
 
-            # Update pheromones
-            for solution, fitness in zip(solutions, fitness_values):
-                pheromones["processing_time"][solution["processing_time"] - bounds["processing_time"][0]] += Q / (-fitness)
-                pheromones["queue_length"][solution["queue_length"] - bounds["queue_length"][0]] += Q / (-fitness)
-                utilization_index = int((solution["machine_utilization"] - bounds["machine_utilization"][0]) / (bounds["machine_utilization"][1] - bounds["machine_utilization"][0]))
-                utilization_index = np.clip(utilization_index, 0, len(pheromones["machine_utilization"]) - 1)
-                pheromones["machine_utilization"][utilization_index] += Q / (-fitness)
+                    if fitness > best_fitness:
+                        best_fitness = fitness
+                        best_solution = solution
 
-            for key in pheromones:
-                pheromones[key] *= (1 - EVAPORATION_RATE)
+                # Update pheromones
+                for solution, fitness in zip(solutions, fitness_values):
+                    pheromones["processing_time"][solution["processing_time"] - bounds["processing_time"][0]] += Q / (-fitness)
+                    pheromones["queue_length"][solution["queue_length"] - bounds["queue_length"][0]] += Q / (-fitness)
+                    utilization_index = int((solution["machine_utilization"] - bounds["machine_utilization"][0]) / (bounds["machine_utilization"][1] - bounds["machine_utilization"][0]))
+                    utilization_index = np.clip(utilization_index, 0, len(pheromones["machine_utilization"]) - 1)
+                    pheromones["machine_utilization"][utilization_index] += Q / (-fitness)
 
-            fitness_trends.append(best_fitness)
-            st.text(f"Iteration {iteration + 1}, Best Fitness: {best_fitness}")
+                for key in pheromones:
+                    pheromones[key] *= (1 - EVAPORATION_RATE)
 
-        return best_solution, fitness_trends
+                fitness_trends.append(best_fitness)
+                st.text(f"Iteration {iteration + 1}, Best Fitness: {best_fitness}")
 
-    # Run ACO
-    if st.button("Run ACO"):
-        with st.spinner("Running Ant Colony Optimization..."):
-            best_solution, fitness_trends = ant_colony_optimization(df)
+            return best_solution, fitness_trends
 
-        st.subheader("Best Solution")
-        st.write(best_solution)
+        # Run ACO
+        if st.button("Run ACO"):
+            with st.spinner("Running Ant Colony Optimization..."):
+                best_solution, fitness_trends = ant_colony_optimization(df)
 
-        st.subheader("Fitness Trends Over Iterations")
-        plt.figure(figsize=(12, 6))
-        plt.plot(fitness_trends, label="Fitness")
-        plt.xlabel("Iterations")
-        plt.ylabel("Fitness")
-        plt.title("Fitness Trends Over Iterations")
-        plt.legend()
-        st.pyplot(plt)
+            st.subheader("Best Solution")
+            st.write(best_solution)
+
+            st.subheader("Fitness Trends Over Iterations")
+            plt.figure(figsize=(12, 6))
+            plt.plot(fitness_trends, label="Fitness")
+            plt.xlabel("Iterations")
+            plt.ylabel("Fitness")
+            plt.title("Fitness Trends Over Iterations")
+            plt.legend()
+            st.pyplot(plt)
+
+    except Exception as e:
+        st.error(f"Failed to load dataset. Error: {e}")
+else:
+    st.warning("Please provide a valid GitHub Raw URL.")

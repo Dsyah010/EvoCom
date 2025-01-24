@@ -29,8 +29,15 @@ w3 = st.sidebar.slider("Priority Weight (w3)", 0.0, 1.0, 0.2, 0.1)
 try:
     dataset_path = "pages/job_scheduling_data_100.csv"
     df = pd.read_csv(dataset_path)
+
+    # Data preview with option to view all rows
     st.subheader("Data Preview")
-    st.dataframe(df.head())
+    show_all = st.checkbox("Show all data")
+
+    if show_all:
+        st.dataframe(df)  # Display the entire dataset
+    else:
+        st.dataframe(df.head(10))  # Show the first 10 rows by default
 
     # Bounds for discretization
     bounds = {

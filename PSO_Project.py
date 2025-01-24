@@ -33,8 +33,6 @@ if os.path.exists(file_path):
     COGNITIVE = st.slider("Cognitive", min_value=0.0, max_value=2.0, value=1.5, step=0.1)
     SOCIAL = st.slider("Social", min_value=0.0, max_value=2.0, value=1.5, step=0.1)
     POP_SIZE = st.slider("Population Size", min_value=10, max_value=200, value=100, step=10)
-    GENERATIONS = st.slider("Generations", min_value=10, max_value=500, value=100, step=10)
-    TARGET_FITNESS = st.number_input("Target Fitness", min_value=1e5, max_value=1e15, value=1e10, step=1e5)
 
     # Fitness function (maximize fitness)
     def fitness_cal(position, slack_weight=0.4, utilization_weight=0.3, processing_weight=0.3):
@@ -83,8 +81,13 @@ if os.path.exists(file_path):
         global_best = None
         global_best_fitness = float('-inf')
         fitness_trends = []
+        generations = 0
 
-        for generation in range(GENERATIONS):
+        # Define stopping criteria
+        max_generations = 100
+        target_fitness = 1e10
+
+        for generation in range(max_generations):
             for particle in particles:
                 # Evaluate fitness
                 fitness = fitness_cal(particle["position"])
@@ -102,25 +105,21 @@ if os.path.exists(file_path):
 
             # Log fitness trends
             fitness_trends.append(global_best_fitness)
-            st.write(f"Generation {generation + 1}, Best Fitness: {global_best_fitness}")
+            generations += 1
 
             # Check stopping criteria
-            if global_best_fitness >= TARGET_FITNESS:
-                st.write("Optimal solution found!")
+            if global_best_fitness >= target_fitness:
                 break
 
-        return global_best, fitness_trends, generation + 1, global_best_fitness
+        return global_best, fitness_trends, generations, global_best_fitness
 
     # Run PSO
-    best_solution, fitness_trends, num_generations, final_fitness = particle_swarm_optimization()
+    best_solution, fitness_trends, generations, final_fitness = particle_swarm_optimization()
 
-    # Display the best solution
-    st.write("Best Solution:", best_solution)
-
-    # Output for Generation and Target Fitness
-    st.subheader("Final Output")
-    st.write(f"Total Generations: {num_generations}")
-    st.write(f"Final Target Fitness: {final_fitness}")
+    # Display the best solution and output values
+    st.write(f"Optimal Solution: {best_solution}")
+    st.write(f"Generations: {generations}")
+    st.write(f"Final Fitness: {final_fitness}")
 
     # Plot fitness trends
     st.subheader("Fitness Trends Over Generations")
